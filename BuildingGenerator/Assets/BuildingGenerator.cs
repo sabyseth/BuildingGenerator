@@ -7,72 +7,66 @@ public class BuildingGenerator : MonoBehaviour
     public GameObject floorPrefab;
     private int[] squareSizes;
     public int numberOfSquares = 1;
-
-
-
+    public int minSize = 2;
+    public int maxSize = 10;
     void Start()
     {
         wallGeneorator();
     }
 
-    public void SpawnWalls()
-    {
-        int length = Random.Range(0, 11);
-        int width = Random.Range(1, 11);
-
-        Vector3 firstWallPosition = transform.position;
-        GameObject firstWall = Instantiate(wallPrefab, firstWallPosition, Quaternion.identity);
-
-        float wallWidth = firstWall.GetComponent<Renderer>().bounds.size.x;
-
-        Debug.Log(length);
-        for (int i = 1; i < length; i++)
-        {
-
-            Vector3 secondWallPosition = firstWallPosition + new Vector3(0f, 0f, i * 10f);
-            Instantiate(wallPrefab, secondWallPosition, Quaternion.identity);
-        }
-    }
-
     string GenerateSquare(int size)
     {
-        Vector3 firstWallPosition = transform.position;
-        GameObject firstWall = Instantiate(wallPrefab, firstWallPosition, Quaternion.identity);
-
-        float wallWidth = firstWall.GetComponent<Renderer>().bounds.size.x;
-
-
         string squareRepresentation = "";
+
+        float wallPrefabWidth = 10; // Replace 1f with your prefab width if different
+        float wallPrefabHeight = 10; // Replace 1f with your prefab height if different
+
+        float floorPrefabWidth = 5; // Replace 1f with your prefab width if different
+        float floorPabHeight = 10; // Replace 1f with your prefab height if different
+
+
         for (int row = 0; row < size; row++)
         {
             for (int col = 0; col < size; col++)
             {
-                squareRepresentation += (row == 0 || row == size - 1 || col == 0 || col == size - 1) ? "X" : "O";
-
-              
-                Vector3 secondWallPosition = firstWallPosition + new Vector3(row * 10f, 0f, col * 10f);
-                Instantiate(wallPrefab, secondWallPosition, Quaternion.identity);
-            
+                bool isEdge = (row == 0 || row == size - 1 || col == 0 || col == size - 1);
                 
-            
+                if (isEdge)
+                {
+                    squareRepresentation += "X";  
+                    Vector3 wallPosition = new Vector3(col * floorPrefabWidth, 0f, row * floorPabHeight);
+                    
+                    Quaternion wallRotation = Quaternion.identity;  
+                    
+                    
+                    if (row == 0 || row == size - 1)
+                    {
+                        wallRotation = Quaternion.Euler(0f, 90f, 0f);  // Rotate to face left/right
+                    }
+                    
+                    Instantiate(wallPrefab, wallPosition, wallRotation);
+                }
+                else
+                {
+                    squareRepresentation += "O";  
+                    Vector3 floorPosition = new Vector3(col * wallPrefabWidth, 0f, row * wallPrefabHeight);
+                    Instantiate(floorPrefab, floorPosition, Quaternion.identity);
+                }
             }
+
             squareRepresentation += "\n";
-            Vector3 thirdWallPosition = firstWallPosition + new Vector3(row * 10f, 0f, 0f);
-            Instantiate(wallPrefab, thirdWallPosition, Quaternion.identity);
-                
         }
+
         return squareRepresentation;
     }
 
     public void wallGeneorator()
     {
-        // Initialize the array
         squareSizes = new int[numberOfSquares];
 
-        // Generate random squares and print their details
         for (int i = 0; i < numberOfSquares; i++)
         {
-            int size = Random.Range(1, 10); // Random size between 1 and 10
+            int size = Random.Range(minSize, maxSize); 
             squareSizes[i] = size;
             Debug.Log($"Square {i + 1}:\n" + GenerateSquare(size));
         }
